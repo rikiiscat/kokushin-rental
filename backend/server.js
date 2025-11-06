@@ -39,7 +39,8 @@ app.use("/uploads", express.static(uploadDir));
 
 // ✅ 连接数据库
 const db = mysql.createConnection({
-  socketPath: process.env.DB_SOCKET, // ✅ 用 socket 连接
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
