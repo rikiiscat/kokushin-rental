@@ -192,107 +192,53 @@
   </div>
 
   <script>
-    //const API_BASE = "http://localhost:3001";
-    const API_BASE = "";
-    const msg = document.getElementById("msg");
-    const carItems = document.getElementById("carItems");
-
-    // 🚪 登出
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      if (!confirm("确定要登出吗？")) return;
-      await fetch(`${API_BASE}/api/logout`, { method: "POST" });
-      window.location.href = "/login.html";
-    });
-
-    // 🚗 提交新增车辆
-    document.getElementById("carForm").addEventListener("submit", async (e) => {
+    document.getElementById("addCarForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      msg.textContent = "正在上传...";
-      msg.className = "msg";
-
+      const msg = document.getElementById("msg");
+      msg.textContent = "正在上传，请稍候...";
+      msg.style.color = "yellow";
+    
+      const name = document.getElementById("carName").value;
+      const price = document.getElementById("carPrice").value;
+      const description = document.getElementById("carDesc").value;
+      const fileInput = document.getElementById("carImage");
+    
+      if (!fileInput.files.length) {
+        msg.textContent = "请先选择一张图片";
+        msg.style.color = "red";
+        return;
+      }
+    
+      const formData = new FormData();
+      formData.append("photo", fileInput.files[0]); // ✅ 字段名必须是 photo
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("description", description);
+    
       try {
-        //const res = await fetch(`${API_BASE}/api/cars`, { method: "POST", body: formData });
-        const res = await fetch(`${API_BASE}/api/cars`, {
+        const res = await fetch("/api/cars", {
           method: "POST",
           body: formData,
-          credentials: "include" // ✅ 保证 session cookie 携带
+          credentials: "include", // ✅ 必须带 cookie
         });
-        if (!res.ok) throw new Error("上传失败");
-        msg.textContent = "✅ 新车辆添加成功！";
-        msg.className = "msg success";
-        form.reset();
-        loadCars();
+    
+        const data = await res.json().catch(() => ({}));
+        console.log("上传返回：", data);
+    
+        if (res.ok) {
+          msg.textContent = "✅ 上传成功！";
+          msg.style.color = "lightgreen";
+          setTimeout(() => location.reload(), 1200);
+        } else {
+          msg.textContent = "❌ 上传失败：" + (data.error || res.status);
+          msg.style.color = "red";
+        }
       } catch (err) {
-        console.error(err);
-        msg.textContent = "❌ 上传失败，请重试";
-        msg.className = "msg error";
+        console.error("上传出错：", err);
+        msg.textContent = "⚠️ 上传异常：" + err.message;
+        msg.style.color = "orange";
       }
     });
-
-    // 🚘 加载车辆列表
-    async function loadCars() {
-      carItems.innerHTML = "<p>加载中...</p>";
-      try {
-        const res = await fetch(`${API_BASE}/api/cars`);
-        const data = await res.json();
-        if (data.length === 0) {
-          carItems.innerHTML = "<p>暂无车辆信息。</p>";
-          return;
-        }
-        carItems.innerHTML = data.map(car => `
-          <div class="car-item">
-            <img src="${API_BASE}${car.image}" alt="${car.name}" />
-            <div class="car-info">
-              <strong>${car.name}</strong> - ¥${car.price}/天
-              <p>${car.description || ""}</p>
-            </div>
-            <div class="car-actions">
-              <button class="edit-btn" onclick="editCar(${car.id})">修改</button>
-              <button class="delete-btn" onclick="deleteCar(${car.id})">删除</button>
-            </div>
-          </div>
-        `).join("");
-      } catch (err) {
-        carItems.innerHTML = "<p style='color:red;'>加载失败，请检查服务器。</p>";
-      }
-    }
-
-    // 🗑 删除车辆
-    async function deleteCar(id) {
-      if (!confirm("确定要删除这辆车吗？")) return;
-      try {
-        const res = await fetch(`${API_BASE}/api/cars/${id}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("删除失败");
-        alert("✅ 已删除车辆");
-        loadCars();
-      } catch (err) {
-        alert("❌ 删除失败，请重试");
-      }
-    }
-
-    // ✏ 修改车辆
-    async function editCar(id) {
-      const newPrice = prompt("请输入新的价格（留空则不改）");
-      const newDesc = prompt("请输入新的描述（留空则不改）");
-      if (newPrice === null && newDesc === null) return;
-
-      const formData = new FormData();
-      if (newPrice) formData.append("price", newPrice);
-      if (newDesc) formData.append("description", newDesc);
-
-      try {
-        const res = await fetch(`${API_BASE}/api/cars/${id}`, { method: "PUT", body: formData });
-        if (!res.ok) throw new Error("更新失败");
-        alert("✅ 更新成功");
-        loadCars();
-      } catch (err) {
-        alert("❌ 更新失败，请重试");
-      }
-    }
-
-    loadCars();
-  </script>
+    </script>    
 </body>
 </html>
