@@ -213,7 +213,12 @@
       msg.className = "msg";
 
       try {
-        const res = await fetch(`${API_BASE}/api/cars`, { method: "POST", body: formData });
+        //const res = await fetch(`${API_BASE}/api/cars`, { method: "POST", body: formData });
+        const res = await fetch(`${API_BASE}/api/cars`, {
+          method: "POST",
+          body: formData,
+          credentials: "include" // ✅ 保证 session cookie 携带
+        });
         if (!res.ok) throw new Error("上传失败");
         msg.textContent = "✅ 新车辆添加成功！";
         msg.className = "msg success";
