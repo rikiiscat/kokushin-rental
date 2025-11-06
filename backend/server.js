@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import session from "express-session";
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
+import fs from "fs";
 
 dotenv.config();
 const app = express();
@@ -47,6 +48,35 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
+    // ✅ 直接内嵌你的 Aiven CA 证书
+    ca: `
+-----BEGIN CERTIFICATE-----
+MIIEUDCCArigAwIBAgIUcEwDqDnr2pXUI2TULYiTXpVP5oYwDQYJKoZIhvcNAQEM
+BQAwQDE+MDwGA1UEAww1YmM4Mzc5NzYtYzM3YS00YTI0LThkODktZGU1MjFjYTA0
+M2I5IEdFTiAxIFByb2plY3QgQ0EwHhcNMjUxMTA2MDM0MjA4WhcNMzUxMTA0MDM0
+MjA4WjBAMT4wPAYDVQQDDDViYzgzNzk3Ni1jMzdhLTRhMjQtOGQ4OS1kZTUyMWNh
+MDQzYjkgR0VOIDEgUHJvamVjdCBDQTCCAaIwDQYJKoZIhvcNAQEBBQADggGPADCC
+AYoCggGBAKyDe6O70OZjlfO4/VFqTUQjltICaGWIgONJU3g9BWwc1qhPXdAnnfYn
+Q1CRUC2Ilb9HixnfdY5h8eDfozjomsKKYJgXkT9t1Rn6yg1aoxXBxjWmRWo8BKNV
+qn0Z1JcazUuLLMKvagzfRLNBjLKRer2hrm1YTkY8WpdGua+7bdJH1vU+3n2yvADw
+126lL1lAFm6AY5R08rf4SBJ8AxN2Mm4pxdsx9NN+5qhS4f+eh3EUfgN1tYOvVKgS
+KQR16SpViWbpiv0UUEmTg9bdqEA/pprHj72lIXrLcKHT4osnq4n0UhbhcdfF4rQn
+dT05bCks3p6MhOF3j9bGF/ksDZvSxbUNK+mMpbeCnxQwIYHyn5Puo0CvD6BtnPxF
+1NvqgFujCILK6/MiulMcDKpWAWKnqdJKmEzUClt4NbsLJjpN/OYs8utmFSebTY9e
+MYI+2g0LOBsQ6HLbaS15u5Ca/ZCpwTSPR8m7CVa+6hSt6Nfc53OOZA5MZySSwV8y
+2Cuuu8coDQIDAQABo0IwQDAdBgNVHQ4EFgQUvYirOiB9YGd9m3Tm/EAFwKFz6ZUw
+EgYDVR0TAQH/BAgwBgEB/wIBADALBgNVHQ8EBAMCAQYwDQYJKoZIhvcNAQEMBQAD
+ggGBAFhNVkW8qBevOUS+J7npKbm8U31DAXRxgEyV1hTISkb8i9T7r5tQZnv0yxAp
+H1FLI3rg61YrXfq5e9lb+jxa1HbMNEAkrY7BlAo3inx7hpWywuWO47Wap4lTetuR
+CNtXJMyvn1IeR/58EhaDYy+Ice5RxB5lufU094VOtYsUQT3IcyVF74jjpjNtvDRv
+zpsd1fzVZLZvg9yDugTIZiOhf3Ff+MtsjIbZzqrr+OXcRVtOUP2FaeWmNmGL7or/
++CRkCUtpPujnJ4Y9j+qBH2FF82CCBwONiSvvoKQNVUzOUSmgkbZg+YddxnMYAAno
+LR7WNyf+HUZymy6ZxpOSb3LaeRP9MMqQfD+pEmWIzJFD/TzCNOH32KSpdsN0ghm4
+xb33vfSV8LPl6tfJCf+zh085hGsjdZoMWVTqFESNb4Akco/33CKCQKi6x4fNdPJN
+QZQ1n/MiDvMXwVngdibpNgu9eoGBckvmlpO00+xIEq7Uns422/KXcLWBz2G5ijco
+mHntfw==
+-----END CERTIFICATE-----
+    `,
     rejectUnauthorized: true
   }
 });
