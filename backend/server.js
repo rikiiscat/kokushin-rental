@@ -6,7 +6,8 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import session from "express-session";
-import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 
 dotenv.config();
 const app = express();
@@ -26,18 +27,15 @@ app.use(
     secret: "kokushin_secret_key",
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 2 * 60 * 60 * 1000 }, // 2小时
+    cookie: {
+      maxAge: 2 * 60 * 60 * 1000, // 2小时
+      sameSite: "none",
+      secure: true,
+    },
   })
 );
 
-// ✅ 静态托管上传目录
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-app.use("/uploads", express.static(uploadDir));
-
-// ✅ 连接数据库
+// ✅ 连接数据库（Aiven）
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -51,12 +49,15 @@ db.connect((err) => {
   else console.log("✅ MySQL 已连接");
 });
 
-// ✅ 文件上传设置
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) =>
-    cb(null, `car_${Date.now()}${path.extname(file.originalname)}`),
+// ✅ Cloudinary 配置
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_KEY,
+  api_secret: process.env.CLOUD_SECRET,
 });
+
+// ✅ multer 使用内存存储（与 Cloudinary 一起用）
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // ===================== 🧩 健康检查接口 =====================
@@ -111,24 +112,46 @@ app.get("/api/cars/:id", (req, res) => {
   const id = req.params.id;
   db.query("SELECT * FROM cars WHERE id = ?", [id], (err, results) => {
     if (err) return res.status(500).json(err);
-    if (results.length === 0) return res.status(404).json({ error: "未找到车辆" });
+    if (results.length === 0)
+      return res.status(404).json({ error: "未找到车辆" });
     res.json(results[0]);
   });
 });
 
-// 添加车辆（需登录）
-app.post("/api/cars", requireLogin, upload.single("photo"), (req, res) => {
+// 添加车辆（上传到 Cloudinary）
+app.post("/api/cars", requireLogin, upload.single("photo"), async (req, res) => {
   const { name, price, description } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
-  const sql =
-    "INSERT INTO cars (name, price, description, image) VALUES (?, ?, ?, ?)";
-  db.query(sql, [name, price, description, image], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, name, price, description, image });
-  });
+  if (!req.file) return res.status(400).json({ error: "未上传图片" });
+
+  try {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "kokushin_cars" },
+      (error, result) => {
+        if (error) return res.status(500).json({ error: error.message });
+
+        const imageUrl = result.secure_url;
+        const sql =
+          "INSERT INTO cars (name, price, description, image) VALUES (?, ?, ?, ?)";
+        db.query(sql, [name, price, description, imageUrl], (err, dbResult) => {
+          if (err) return res.status(500).json(err);
+          res.json({
+            id: dbResult.insertId,
+            name,
+            price,
+            description,
+            image: imageUrl,
+          });
+        });
+      }
+    );
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// 修改车辆（需登录）
+// 修改车辆（可选更新图片）
 app.put("/api/cars/:id", requireLogin, upload.single("photo"), (req, res) => {
   const id = req.params.id;
   const { name, price, description } = req.body;
@@ -147,23 +170,38 @@ app.put("/api/cars/:id", requireLogin, upload.single("photo"), (req, res) => {
     updates.push("description=?");
     values.push(description);
   }
+
+  // 若上传了新图片则上传 Cloudinary
   if (req.file) {
-    updates.push("image=?");
-    values.push(`/uploads/${req.file.filename}`);
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "kokushin_cars" },
+      (error, result) => {
+        if (error) return res.status(500).json({ error: error.message });
+        updates.push("image=?");
+        values.push(result.secure_url);
+
+        const sql = `UPDATE cars SET ${updates.join(", ")} WHERE id=?`;
+        values.push(id);
+        db.query(sql, values, (err) => {
+          if (err) return res.status(500).json(err);
+          res.json({ success: true });
+        });
+      }
+    );
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+  } else {
+    if (updates.length === 0)
+      return res.status(400).json({ error: "未提供任何更新内容" });
+    const sql = `UPDATE cars SET ${updates.join(", ")} WHERE id=?`;
+    values.push(id);
+    db.query(sql, values, (err) => {
+      if (err) return res.status(500).json(err);
+      res.json({ success: true });
+    });
   }
-
-  if (updates.length === 0)
-    return res.status(400).json({ error: "未提供任何更新内容" });
-
-  const sql = `UPDATE cars SET ${updates.join(", ")} WHERE id=?`;
-  values.push(id);
-  db.query(sql, values, (err) => {
-    if (err) return res.status(500).json(err);
-    res.json({ success: true });
-  });
 });
 
-// 删除车辆（需登录）
+// 删除车辆
 app.delete("/api/cars/:id", requireLogin, (req, res) => {
   const id = req.params.id;
   db.query("DELETE FROM cars WHERE id = ?", [id], (err) => {
