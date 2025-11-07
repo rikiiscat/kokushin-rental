@@ -165,36 +165,39 @@ app.post("/api/cars", requireLogin, upload.single("photo"), async (req, res) => 
   if (!req.file) return res.status(400).json({ error: "未上传图片" });
 
   try {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: "kokushin_cars" },
-      (error, result) => {
-        if (error) return res.status(500).json({ error: error.message });
+    // 封装 Cloudinary 上传流为 Promise
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "kokushin_cars" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+    });
 
-        const imageUrl = result.secure_url;
-        const sql =
-          "INSERT INTO cars (name, price, description, image) VALUES (?, ?, ?, ?)";
-        db.query(sql, [name, price, description, imageUrl], (err, dbResult) => {
-          console.log("📦 插入 SQL:", sql);
-          console.log("📦 插入参数:", [name, price, description, imageUrl]);
-          if (err) {
-            console.error("❌ 数据库写入错误:", err);
-            return res.status(500).json(err);
-          }
-          console.log("✅ 写入成功:", dbResult);
-          res.json({
-            id: dbResult.insertId,
-            name,
-            price,
-            description,
-            image: imageUrl,
-          });
-        });
+    const imageUrl = result.secure_url;
+
+    // 数据库写入
+    const sql = "INSERT INTO cars (name, price, description, image) VALUES (?, ?, ?, ?)";
+    db.query(sql, [name, price, description, imageUrl], (err, dbResult) => {
+      if (err) {
+        console.error("❌ 数据库写入错误:", err);
+        return res.status(500).json(err);
       }
-    );
-    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+      console.log("✅ 新增车辆成功:", name);
+      res.json({
+        id: dbResult.insertId,
+        name,
+        price,
+        description,
+        image: imageUrl,
+      });
+    });
+  } catch (error) {
+    console.error("❌ 上传失败:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
