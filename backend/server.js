@@ -33,10 +33,10 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      maxAge: 2 * 60 * 60 * 1000, // 2小时
-      sameSite: "none",
-      secure: true,
-    },
+      maxAge: 2 * 60 * 60 * 1000,  // 2小时
+      sameSite: "lax",             // 允许同域请求携带 cookie
+      secure: false,               // Render 免费版禁用 strict HTTPS cookie
+    },    
   })
 );
 
