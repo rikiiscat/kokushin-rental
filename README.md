@@ -29,3 +29,15 @@ API base is `http://localhost` (port 80). If backend runs on 3001, edit `fronten
 - Uploads are served from `/uploads` path.
 - If you see CORS issues, ensure the frontend is served from file or from a server and backend enables CORS.
 - Google Translate widget is included under header.
+
+
+## 5. ONLINE TOOLS
+- RENDER : every 15 min sleep, deploy here
+- AIVEN : for database storing
+- CLOUDINARY : storing data
+- UPTIMEROBOT : activate website every 5 min
+command(LINUX)
+    1. path at kokushin-rental
+    2. git add .
+    3. git commit -m "..."
+    4. git push origin main
