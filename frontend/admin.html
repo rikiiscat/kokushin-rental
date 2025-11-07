@@ -196,30 +196,16 @@
       e.preventDefault();
       const msg = document.getElementById("msg");
       msg.textContent = "正在上传，请稍候...";
-      msg.style.color = "yellow";
+      msg.style.color = "orange";
     
-      const name = document.getElementById("carName").value;
-      const price = document.getElementById("carPrice").value;
-      const description = document.getElementById("carDesc").value;
-      const fileInput = document.getElementById("carImage");
-    
-      if (!fileInput.files.length) {
-        msg.textContent = "请先选择一张图片";
-        msg.style.color = "red";
-        return;
-      }
-    
-      const formData = new FormData();
-      formData.append("photo", fileInput.files[0]); // ✅ 字段名必须是 photo
-      formData.append("name", name);
-      formData.append("price", price);
-      formData.append("description", description);
+      const form = e.target;
+      const formData = new FormData(form);
     
       try {
         const res = await fetch("/api/cars", {
           method: "POST",
           body: formData,
-          credentials: "include", // ✅ 必须带 cookie
+          credentials: "include", // 允许带上登录 session
         });
     
         const data = await res.json().catch(() => ({}));
@@ -228,7 +214,7 @@
         if (res.ok) {
           msg.textContent = "✅ 上传成功！";
           msg.style.color = "lightgreen";
-          setTimeout(() => location.reload(), 1200);
+          setTimeout(() => location.reload(), 1500);
         } else {
           msg.textContent = "❌ 上传失败：" + (data.error || res.status);
           msg.style.color = "red";
@@ -236,9 +222,10 @@
       } catch (err) {
         console.error("上传出错：", err);
         msg.textContent = "⚠️ 上传异常：" + err.message;
-        msg.style.color = "orange";
+        msg.style.color = "red";
       }
     });
-    </script>    
+    </script>
+        
 </body>
 </html>
