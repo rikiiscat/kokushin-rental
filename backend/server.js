@@ -174,7 +174,13 @@ app.post("/api/cars", requireLogin, upload.single("photo"), async (req, res) => 
         const sql =
           "INSERT INTO cars (name, price, description, image) VALUES (?, ?, ?, ?)";
         db.query(sql, [name, price, description, imageUrl], (err, dbResult) => {
-          if (err) return res.status(500).json(err);
+          console.log("📦 插入 SQL:", sql);
+          console.log("📦 插入参数:", [name, price, description, imageUrl]);
+          if (err) {
+            console.error("❌ 数据库写入错误:", err);
+            return res.status(500).json(err);
+          }
+          console.log("✅ 写入成功:", dbResult);
           res.json({
             id: dbResult.insertId,
             name,
