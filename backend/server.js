@@ -40,15 +40,16 @@ app.use(
   })
 );
 
-// ✅ 连接数据库（Aiven）
-const db = mysql.createConnection({
+// ✅ 连接数据库（Aiven + SSL）
+const db = mysql.createPool({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 5,
   ssl: {
-    // ✅ 直接内嵌你的 Aiven CA 证书
     ca: `
 -----BEGIN CERTIFICATE-----
 MIIEUDCCArigAwIBAgIUcEwDqDnr2pXUI2TULYiTXpVP5oYwDQYJKoZIhvcNAQEM
@@ -77,11 +78,12 @@ QZQ1n/MiDvMXwVngdibpNgu9eoGBckvmlpO00+xIEq7Uns422/KXcLWBz2G5ijco
 mHntfw==
 -----END CERTIFICATE-----
     `,
-    rejectUnauthorized: true
-  }
+    minVersion: "TLSv1.2"
+  },
 });
 
-db.connect((err) => {
+// ✅ 连接测试
+db.query("SELECT 1 AS ok", (err) => {
   if (err) console.error("❌ 数据库连接失败:", err);
   else console.log("✅ MySQL 已连接");
 });
@@ -100,11 +102,13 @@ const upload = multer({ storage });
 // ===================== 🧩 健康检查接口 =====================
 app.get(["/api/health", "/api/health/"], (req, res) => {
   try {
-    if (db.state === "authenticated") {
-      res.json({ ok: true, db: true });
-    } else {
-      res.json({ ok: true, db: false });
-    }
+    db.query("SELECT 1 AS ok", (err) => {
+      if (err) {
+        res.json({ ok: true, db: false, error: err.code || err.message });
+      } else {
+        res.json({ ok: true, db: true });
+      }
+    });    
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }
