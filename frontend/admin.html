@@ -1,128 +1,79 @@
 <!DOCTYPE html>
 <html lang="zh">
-<meta name="google-translate-customization" content="">
-<script type="text/javascript">
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement(
-      { pageLanguage: 'zh-CN', includedLanguages: 'en,ja,zh-CN', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-      'google_translate_element'
-    );
-  }
-</script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>后台管理 - KOKUSHIN 租车服务</title>
+  <title>KOKUSHIN 后台管理</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* ===== Admin 专属样式 ===== */
     body {
-      background: #f5f7fa;
+      background: #f4f6f8;
       font-family: "Helvetica Neue", sans-serif;
-      color: #333;
     }
-
     header {
       background: #007bff;
       color: white;
       padding: 15px 25px;
-      text-align: center;
-      font-size: 1.5em;
-      font-weight: bold;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-weight: bold;
+      font-size: 1.2em;
     }
-
     .logout-btn {
       background: #ffc107;
-      color: black;
       border: none;
       border-radius: 6px;
       padding: 8px 15px;
-      font-size: 0.9em;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .admin-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 25px;
+    }
+
+    .admin-form input,
+    .admin-form textarea,
+    .admin-form button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    .admin-form button {
+      background-color: #007bff;
+      color: white;
+      border: none;
       font-weight: bold;
       cursor: pointer;
       transition: background 0.2s ease;
     }
-    .logout-btn:hover {
-      background: #ffb000;
-    }
 
-    .form-container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 30px;
-    }
-
-    h2 {
-      text-align: center;
-      color: #007bff;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-top: 8px;
-      font-size: 1em;
-    }
-
-    input[type="file"] {
-      margin-top: 10px;
-    }
-
-    button {
-      display: block;
-      width: 100%;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 1.1em;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    button:hover {
-      background: #0056b3;
+    .admin-form button:hover {
+      background-color: #0056b3;
     }
 
     .msg {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 10px;
       font-weight: bold;
     }
 
-    .success { color: green; }
-    .error { color: red; }
-
-    /* === 管理列表 === */
     .car-list {
-      max-width: 900px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 20px;
+      margin-top: 30px;
     }
 
-    .car-item {
+    .car-item-admin {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -130,23 +81,19 @@
       padding: 10px 0;
     }
 
-    .car-item img {
+    .car-item-admin img {
       width: 100px;
       height: 70px;
+      border-radius: 6px;
       object-fit: cover;
-      border-radius: 8px;
-      margin-right: 20px;
+      margin-right: 15px;
     }
 
-    .car-info {
-      flex: 1;
-    }
-
-    .car-actions button {
-      margin-left: 8px;
-      padding: 6px 10px;
+    .car-item-admin .actions button {
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      padding: 5px 8px;
+      margin-left: 6px;
       cursor: pointer;
       color: white;
       font-size: 0.9em;
@@ -154,78 +101,153 @@
 
     .edit-btn { background-color: #28a745; }
     .delete-btn { background-color: #dc3545; }
-    .edit-btn:hover { background-color: #218838; }
-    .delete-btn:hover { background-color: #c82333; }
+
+    .preview {
+      display: block;
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
   <header>
-    <span>🚗 KOKUSHIN 后台管理系统</span>
+    🚗 KOKUSHIN 后台管理
     <button class="logout-btn" id="logoutBtn">登出</button>
   </header>
 
-  <div id="google_translate_element"></div>
-
-  <div class="form-container">
-    <h2>新增车辆信息</h2>
-    <form id="carForm" enctype="multipart/form-data">
-      <label>车辆名称：</label>
+  <div class="admin-container">
+    <h2>新增车辆</h2>
+    <form id="carForm" class="admin-form" enctype="multipart/form-data">
+      <label>名称：</label>
       <input type="text" name="name" required placeholder="如：丰田卡罗拉" />
 
-      <label>租赁价格（每日）：</label>
+      <label>价格（¥/天）：</label>
       <input type="number" name="price" required placeholder="如：280" />
 
-      <label>车辆描述：</label>
-      <textarea name="description" rows="3" placeholder="车辆详细信息..."></textarea>
+      <label>描述：</label>
+      <textarea name="description" rows="3" placeholder="车辆描述..."></textarea>
 
-      <label>上传车辆照片：</label>
-      <input type="file" name="photo" accept="image/*" required />
+      <label>上传图片：</label>
+      <input type="file" name="photo" id="photoInput" accept="image/*" required />
+      <img id="preview" class="preview" src="" alt="预览" style="display:none;" />
 
-      <button type="submit">提交新增车辆</button>
-      <div class="msg" id="msg"></div>
+      <button type="submit">上传车辆</button>
+      <div id="msg" class="msg"></div>
     </form>
-  </div>
 
-  <div class="car-list" id="carList">
-    <h2>当前车辆列表</h2>
-    <div id="carItems"></div>
+    <div class="car-list">
+      <h2>车辆列表</h2>
+      <div id="carItems">加载中...</div>
+    </div>
   </div>
 
   <script>
+    const API_BASE = "";
+    const msg = document.getElementById("msg");
+    const preview = document.getElementById("preview");
+    const photoInput = document.getElementById("photoInput");
+
+    // ✅ 图片预览
+    photoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      } else {
+        preview.style.display = "none";
+      }
+    });
+
+    // ✅ 加载车辆
+    async function loadCars() {
+      const res = await fetch(`${API_BASE}/api/cars`, { credentials: "include" });
+      const cars = await res.json();
+      const list = document.getElementById("carItems");
+
+      if (!cars.length) {
+        list.innerHTML = "<p style='text-align:center;color:#888;'>暂无车辆</p>";
+        return;
+      }
+
+      list.innerHTML = cars.map(c => `
+        <div class="car-item-admin">
+          <img src="${c.image}" alt="${c.name}">
+          <div>
+            <strong>${c.name}</strong><br>
+            💰 ¥${c.price}/天<br>
+            <small>${c.description || ''}</small>
+          </div>
+          <div class="actions">
+            <button class="edit-btn" onclick="editCar(${c.id})">编辑</button>
+            <button class="delete-btn" onclick="deleteCar(${c.id})">删除</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ✅ 上传车辆
     document.getElementById("carForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const msg = document.getElementById("msg");
       msg.textContent = "正在上传，请稍候...";
       msg.style.color = "orange";
-    
-      const form = e.target;
-      const formData = new FormData(form);
-    
-      try {
-        const res = await fetch("/api/cars", {
-          method: "POST",
-          body: formData,
-          credentials: "include", // 允许带上登录 session
-        });
-    
-        const data = await res.json().catch(() => ({}));
-        console.log("上传返回：", data);
-    
-        if (res.ok) {
-          msg.textContent = "✅ 上传成功！";
-          msg.style.color = "lightgreen";
-          setTimeout(() => location.reload(), 1500);
-        } else {
-          msg.textContent = "❌ 上传失败：" + (data.error || res.status);
-          msg.style.color = "red";
-        }
-      } catch (err) {
-        console.error("上传出错：", err);
-        msg.textContent = "⚠️ 上传异常：" + err.message;
+      const formData = new FormData(e.target);
+
+      const res = await fetch(`${API_BASE}/api/cars`, {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        msg.textContent = "✅ 上传成功！";
+        msg.style.color = "green";
+        e.target.reset();
+        preview.style.display = "none";
+        loadCars();
+      } else {
+        msg.textContent = "❌ 上传失败：" + (data.error || res.status);
         msg.style.color = "red";
       }
     });
-    </script>
-        
+
+    // ✅ 删除车辆
+    async function deleteCar(id) {
+      if (!confirm("确定删除该车辆？")) return;
+      const res = await fetch(`${API_BASE}/api/cars/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (res.ok) loadCars();
+      else alert("删除失败");
+    }
+
+    // ✅ 编辑车辆
+    async function editCar(id) {
+      const newName = prompt("请输入新的车辆名称：");
+      if (!newName) return;
+      const res = await fetch(`${API_BASE}/api/cars/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: newName })
+      });
+      if (res.ok) loadCars();
+      else alert("修改失败");
+    }
+
+    // ✅ 登出
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await fetch(`${API_BASE}/api/logout`, { method: "POST", credentials: "include" });
+      window.location.href = "/login.html";
+    });
+
+    // ✅ 页面加载时自动拉取
+    loadCars();
+  </script>
 </body>
 </html>
