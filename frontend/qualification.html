@@ -4,115 +4,74 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>公司资质 - KOKUSHIN 租车</title>
+  <link rel="stylesheet" href="style.css" />
 
   <style>
-    /* ======= 全局基础样式 ======= */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* ========== Qualification 页面正文美化 ========== */
+    main {
+      background: white;
+      max-width: 850px;
+      margin: 50px auto;
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      animation: fadeIn 0.6s ease;
     }
 
-html, body {
-  font-family: "Helvetica Neue", "PingFang SC", "Noto Sans JP", sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
-  scroll-behavior: smooth;
-}
+    main h3 {
+      font-size: 1.8rem;
+      color: #007bff;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #007bff;
+      display: inline-block;
+      padding-bottom: 6px;
+    }
 
-/* ======= Header 导航栏 ======= */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  padding: 12px 5%;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+    main p {
+      font-size: 1.05rem;
+      color: #444;
+      margin: 10px 0;
+      line-height: 1.8;
+    }
 
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #007bff;
-  letter-spacing: 1px;
-}
+    main a {
+      color: #007bff;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
 
-.logo img {
-  height: 40px;
-  margin-right: 8px;
-}
+    main a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
 
-nav {
-  display: flex;
-  align-items: center;
-}
+    /* 联系信息列表样式 */
+    main p::before {
+      content: "• ";
+      color: #007bff;
+      font-weight: bold;
+    }
 
-nav a {
-  margin-left: 24px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  transition: color 0.3s ease, border-bottom 0.3s ease;
-  border-bottom: 2px solid transparent;
-}
+    main p:first-of-type::before {
+      content: "";
+    }
 
-nav a:hover,
-nav a.active {
-  color: #007bff;
-  border-bottom: 2px solid #007bff;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* ======= Google 翻译居中 ======= */
-#google_translate_element {
-  text-align: center;
-  margin: 12px auto;
-  padding: 6px 0;
-}
-
-/* ======= Footer 页脚 ======= */
-footer {
-  text-align: center;
-  background-color: #007bff;
-  color: white;
-  padding: 20px;
-  font-size: 0.95rem;
-  margin-top: 40px;
-}
-
-footer a {
-  color: #ffe082;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-footer a:hover {
-  color: #fff;
-}
-
-/* ======= 响应式设计 ======= */
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 15px 20px;
-  }
-
-  nav {
-    margin-top: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  nav a {
-    margin: 6px 12px;
-  }
-}
+    /* 手机端优化 */
+    @media (max-width: 768px) {
+      main {
+        padding: 35px 20px;
+        margin: 30px 15px;
+      }
+      main h3 { font-size: 1.6rem; }
+      main p { font-size: 1rem; }
+    }
 
   </style>
 
