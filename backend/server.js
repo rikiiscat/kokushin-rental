@@ -262,6 +262,7 @@ app.delete("/api/cars/:id", requireLogin, (req, res) => {
 
 // ===================== 🧩 静态前端文件 =====================
 app.use(express.static(path.join(__dirname, "../frontend")));
+app.use("/photos", express.static(path.join(__dirname, "../frontend/photos")));
 
 // 兜底返回首页
 app.get("*", (req, res) => {
