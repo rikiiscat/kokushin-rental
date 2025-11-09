@@ -6,62 +6,66 @@
   <title>租车价目表 - KOKUSHIN 租车</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    h2 {
+      text-align: center;
+      margin: 30px 0;
+      color: #333;
+    }
+
+    /* 图片区域 */
     .price-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      padding: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
       max-width: 1200px;
       margin: 0 auto;
+      padding: 40px 20px;
     }
     .price-gallery img {
       width: 100%;
-      height: 200px;
+      height: 380px;
       object-fit: cover;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      transition: transform 0.3s ease;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
       cursor: pointer;
+      transition: transform 0.3s ease;
     }
     .price-gallery img:hover {
       transform: scale(1.03);
     }
-    h2 {
-      text-align: center;
-      margin-top: 40px;
-      color: #333;
-    }
 
-    /* 🔍 图片放大弹窗 */
+    /* 可移动的放大视图 */
     .lightbox {
       display: none;
       position: fixed;
       z-index: 1000;
       top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
       justify-content: center;
       align-items: center;
+      cursor: move;
     }
-    .lightbox img {
-      max-width: 90%;
-      max-height: 80%;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(255,255,255,0.3);
-    }
-    .lightbox:target {
+    .lightbox.active {
       display: flex;
     }
+    .lightbox img {
+      max-width: 95%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(255,255,255,0.3);
+      transition: transform 0.3s ease;
+    }
 
-    /* Google Translate 样式微调 */
+    /* Google Translate 居中 */
     #google_translate_element {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      z-index: 1001;
+      text-align: center;
+      margin: 10px auto;
     }
   </style>
-  <!-- 🌐 Google Translate -->
+
+  <!-- Google Translate -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
@@ -73,11 +77,13 @@
   </script>
   <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
+
 <body>
-  <!-- 🔝 Header -->
+  <!-- Header -->
   <header>
     <div class="logo">
-      <img src="photos/logo.png" alt="Logo" style="height:40px;margin-right:8px;"> KOKUSHIN 租车
+      <img src="photos/logo.png" alt="Logo" style="height:40px;margin-right:8px;">
+      KOKUSHIN 租车
     </div>
     <nav>
       <a href="index.html">首页</a>
@@ -87,39 +93,67 @@
     </nav>
   </header>
 
+  <!-- Google Translate -->
   <div id="google_translate_element"></div>
 
-  <!-- 📸 价目表 -->
-  <section>
-    <h2>租车价目表</h2>
-    <div class="price-gallery">
-      <a href="#img1"><img src="photos/1.png" alt="价目表1"></a>
-      <a href="#img2"><img src="photos/2.png" alt="价目表2"></a>
-      <a href="#img3"><img src="photos/3.png" alt="价目表3"></a>
-      <a href="#img4"><img src="photos/4.png" alt="价目表4"></a>
-    </div>
-  </section>
-
-  <!-- 🔍 点击放大弹窗 -->
-  <div class="lightbox" id="img1">
-    <a href="#"><img src="photos/1.png" alt="价目表1"></a>
-  </div>
-  <div class="lightbox" id="img2">
-    <a href="#"><img src="photos/2.png" alt="价目表2"></a>
-  </div>
-  <div class="lightbox" id="img3">
-    <a href="#"><img src="photos/3.png" alt="价目表3"></a>
-  </div>
-  <div class="lightbox" id="img4">
-    <a href="#"><img src="photos/4.png" alt="价目表4"></a>
+  <!-- 主内容 -->
+  <h2>租车价目表</h2>
+  <div class="price-gallery">
+    <img src="photos/1.png" alt="价目表1" onclick="openLightbox(this)">
+    <img src="photos/2.png" alt="价目表2" onclick="openLightbox(this)">
+    <img src="photos/3.png" alt="价目表3" onclick="openLightbox(this)">
+    <img src="photos/4.png" alt="价目表4" onclick="openLightbox(this)">
   </div>
 
-  <!-- 🔻 Footer -->
+  <!-- 放大弹窗 -->
+  <div class="lightbox" id="lightbox" onmousedown="startDrag(event)" onmouseup="stopDrag()" onmousemove="drag(event)">
+    <img id="lightbox-img" src="" alt="放大图片">
+  </div>
+
+  <!-- Footer -->
   <footer>
     <p>© 2025 KOKUSHIN 租车服务 |
       <a href="qualification.html">公司简介</a> |
       <a href="https://www.rentacar.or.jp/">全国租车协会会员</a>
     </p>
   </footer>
+
+  <script>
+    // 点击放大
+    function openLightbox(img) {
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightbox-img");
+      lightboxImg.src = img.src;
+      lightbox.classList.add("active");
+    }
+
+    // 拖动查看
+    let dragging = false, startX, startY;
+    function startDrag(e) {
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      e.preventDefault();
+    }
+    function stopDrag() {
+      dragging = false;
+    }
+    function drag(e) {
+      if (!dragging) return;
+      const img = document.getElementById("lightbox-img");
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      img.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+
+    // 点击关闭
+    document.getElementById("lightbox").addEventListener("click", (e) => {
+      if (e.target.id === "lightbox") {
+        e.currentTarget.classList.remove("active");
+        const img = document.getElementById("lightbox-img");
+        img.style.transform = "translate(0,0)";
+      }
+    });
+  </script>
 </body>
 </html>
