@@ -34,7 +34,7 @@
       transform: scale(1.03);
     }
 
-    /* 可移动的放大视图 */
+    /* 放大弹窗 */
     .lightbox {
       display: none;
       position: fixed;
@@ -45,7 +45,8 @@
       background: rgba(0, 0, 0, 0.85);
       justify-content: center;
       align-items: center;
-      cursor: move;
+      overflow: hidden;
+      cursor: grab;
     }
     .lightbox.active {
       display: flex;
@@ -55,7 +56,8 @@
       max-height: 90%;
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(255,255,255,0.3);
-      transition: transform 0.3s ease;
+      transition: transform 0.2s ease;
+      touch-action: none; /* 禁止默认浏览器拖拽行为 */
     }
 
     /* Google Translate 居中 */
@@ -106,7 +108,7 @@
   </div>
 
   <!-- 放大弹窗 -->
-  <div class="lightbox" id="lightbox" onmousedown="startDrag(event)" onmouseup="stopDrag()" onmousemove="drag(event)">
+  <div class="lightbox" id="lightbox">
     <img id="lightbox-img" src="" alt="放大图片">
   </div>
 
@@ -119,41 +121,85 @@
   </footer>
 
   <script>
-    // 点击放大
-    function openLightbox(img) {
-      const lightbox = document.getElementById("lightbox");
-      const lightboxImg = document.getElementById("lightbox-img");
-      lightboxImg.src = img.src;
+    const lightbox = document.getElementById("lightbox");
+    const img = document.getElementById("lightbox-img");
+    let dragging = false, startX, startY, currentX = 0, currentY = 0, scale = 1;
+    let lastTouchDistance = 0;
+
+    // 打开放大图
+    function openLightbox(el) {
+      img.src = el.src;
       lightbox.classList.add("active");
+      scale = 1;
+      currentX = currentY = 0;
+      updateTransform();
     }
 
-    // 拖动查看
-    let dragging = false, startX, startY;
-    function startDrag(e) {
+    // 鼠标拖动
+    lightbox.addEventListener("mousedown", (e) => {
       dragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      e.preventDefault();
-    }
-    function stopDrag() {
-      dragging = false;
-    }
-    function drag(e) {
+      startX = e.clientX - currentX;
+      startY = e.clientY - currentY;
+    });
+    lightbox.addEventListener("mouseup", () => (dragging = false));
+    lightbox.addEventListener("mousemove", (e) => {
       if (!dragging) return;
-      const img = document.getElementById("lightbox-img");
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      img.style.transform = `translate(${dx}px, ${dy}px)`;
-    }
+      currentX = e.clientX - startX;
+      currentY = e.clientY - startY;
+      updateTransform();
+    });
 
-    // 点击关闭
-    document.getElementById("lightbox").addEventListener("click", (e) => {
-      if (e.target.id === "lightbox") {
-        e.currentTarget.classList.remove("active");
-        const img = document.getElementById("lightbox-img");
-        img.style.transform = "translate(0,0)";
+    // 鼠标滚轮缩放
+    lightbox.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomSpeed = 0.1;
+      if (e.deltaY < 0) scale *= 1.1;
+      else scale *= 0.9;
+      scale = Math.min(Math.max(scale, 0.3), 5);
+      updateTransform();
+    });
+
+    // 触摸支持：单指拖动，双指缩放
+    lightbox.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX - currentX;
+        startY = e.touches[0].clientY - currentY;
+      } else if (e.touches.length === 2) {
+        lastTouchDistance = getTouchDistance(e.touches);
       }
     });
+
+    lightbox.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        currentX = e.touches[0].clientX - startX;
+        currentY = e.touches[0].clientY - startY;
+        updateTransform();
+      } else if (e.touches.length === 2) {
+        const newDistance = getTouchDistance(e.touches);
+        const zoomFactor = newDistance / lastTouchDistance;
+        scale *= zoomFactor;
+        scale = Math.min(Math.max(scale, 0.3), 5);
+        lastTouchDistance = newDistance;
+        updateTransform();
+      }
+    });
+
+    function getTouchDistance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // 点击空白关闭
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) lightbox.classList.remove("active");
+    });
+
+    // 更新图片 transform
+    function updateTransform() {
+      img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${scale})`;
+    }
   </script>
 </body>
 </html>
