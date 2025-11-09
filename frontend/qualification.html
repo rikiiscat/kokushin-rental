@@ -4,8 +4,151 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>公司资质 - KOKUSHIN 租车</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: "Helvetica Neue", "PingFang SC", "Noto Sans JP", sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      scroll-behavior: smooth;
+    }
+
+    /* Header 栏 */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 12px 5%;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #007bff;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      margin-left: 24px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s ease, border-bottom 0.3s ease;
+      border-bottom: 2px solid transparent;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: #007bff;
+      border-bottom: 2px solid #007bff;
+    }
+
+    /* 翻译 */
+    #google_translate_element {
+      text-align: center;
+      margin: 12px auto;
+      padding: 6px 0;
+    }
+
+    /* 主内容 */
+    main {
+      padding: 60px 20px;
+      background-color: #fff;
+      max-width: 800px;
+      margin: 40px auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    h3 {
+      font-size: 1.8rem;
+      color: #007bff;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    p {
+      margin: 10px 0;
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      font-size: 0.95rem;
+      margin-top: 40px;
+    }
+
+    footer a {
+      color: #ffe082;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        padding: 15px 20px;
+      }
+
+      nav {
+        margin-top: 8px;
+      }
+
+      nav a {
+        margin: 0 10px;
+      }
+
+      main {
+        margin: 20px;
+        padding: 40px 20px;
+      }
+    }
+  </style>
+
+  <!-- Google Translate -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        { pageLanguage: 'zh-CN', includedLanguages: 'zh-CN,en,ja', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
+
 <body>
   <header>
     <div class="logo">
@@ -20,16 +163,15 @@
 
   <div id="google_translate_element"></div>
 
-  <main class="intro">
-    <section style="margin-top:40px;">
-      <h3>联系我们</h3>
-      <p>获取完整资质文件请联系：E-mail: <a href="mailto: japanguoxin@gmail.com">japanguoxin@gmail.com</a></p>
-      <p>联系电话：090-4937-8889</p>
-      <p>FAX: 048-235-6001</p>
-      <p>小客服微信号：Japan_Guoxin</p>
-      <p>小红书：日本国信（株）租车部</p>
-      <p>小红书号：94994024435</p>
-    </section>
+  <main>
+    <h3>联系我们</h3>
+    <p>获取完整资质文件请联系：</p>
+    <p>E-mail: <a href="mailto:japanguoxin@gmail.com">japanguoxin@gmail.com</a></p>
+    <p>联系电话：090-4937-8889</p>
+    <p>FAX: 048-235-6001</p>
+    <p>小客服微信号：Japan_Guoxin</p>
+    <p>小红书：日本国信（株）租车部</p>
+    <p>小红书号：94994024435</p>
   </main>
 
   <footer>
