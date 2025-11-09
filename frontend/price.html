@@ -1,80 +1,125 @@
 <!DOCTYPE html>
 <html lang="zh">
-<meta name="google-translate-customization" content="">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>价格信息 - KOKUSHIN 租车</title>
-  <script type="text/javascript">
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement(
-        { pageLanguage: 'zh-CN', includedLanguages: 'zh-CN,en,ja', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-        'google_translate_element'
-      );
-    }
-  </script>
-  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <title>租车价目表 - KOKUSHIN 租车</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: "Helvetica Neue", sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f8f8;
-      text-align: center;
-    }
-
-    h1 {
-      background-color: #007bff;
-      color: white;
-      padding: 20px 0;
-      margin: 0 0 30px 0;
-    }
-
-    /* 图片容器使用响应式网格 */
-    .image-grid {
+    .price-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      padding: 0 20px 40px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 40px;
       max-width: 1200px;
-      margin: auto;
+      margin: 0 auto;
     }
-
-    .image-grid img {
+    .price-gallery img {
       width: 100%;
-      height: auto;
+      height: 200px;
+      object-fit: cover;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      transition: transform 0.2s ease-in-out;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .price-gallery img:hover {
+      transform: scale(1.03);
+    }
+    h2 {
+      text-align: center;
+      margin-top: 40px;
+      color: #333;
     }
 
-    .image-grid img:hover {
-      transform: scale(1.03);
+    /* 🔍 图片放大弹窗 */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(255,255,255,0.3);
+    }
+    .lightbox:target {
+      display: flex;
+    }
+
+    /* Google Translate 样式微调 */
+    #google_translate_element {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      z-index: 1001;
     }
   </style>
 </head>
 <body>
+  <!-- 🌐 Google Translate -->
+  <div id="google_translate_element"></div>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'zh-CN',
+        includedLanguages: 'zh-CN,en,ja',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <!-- 🔝 Header -->
   <header>
     <div class="logo">
       <img src="photos/logo.png" alt="Logo" style="height:40px;margin-right:8px;"> KOKUSHIN 租车
     </div>
     <nav>
-      <a href="index.html" class="active">首页</a>
+      <a href="index.html">首页</a>
       <a href="cars.html">租车列表</a>
       <a href="qualification.html">公司简介</a>
+      <a href="price.html" class="active">价目表</a>
     </nav>
   </header>
 
-  <div id="google_translate_element"></div>
+  <!-- 📸 价目表 -->
+  <section>
+    <h2>租车价目表</h2>
+    <div class="price-gallery">
+      <a href="#img1"><img src="photos/price1.jpg" alt="价目表1"></a>
+      <a href="#img2"><img src="photos/price2.jpg" alt="价目表2"></a>
+      <a href="#img3"><img src="photos/price3.jpg" alt="价目表3"></a>
+      <a href="#img4"><img src="photos/price4.jpg" alt="价目表4"></a>
+    </div>
+  </section>
 
-  <h1>租车价格与车型展示</h1>
-
-  <div class="image-grid">
-    <img src="photos/1.png">
-    <img src="photos/2.png">
-    <img src="photos/3.png">
-    <img src="photos/4.png">
+  <!-- 🔍 点击放大弹窗 -->
+  <div class="lightbox" id="img1">
+    <a href="#"><img src="photos/1.png" alt="价目表1"></a>
+  </div>
+  <div class="lightbox" id="img2">
+    <a href="#"><img src="photos/2.png" alt="价目表2"></a>
+  </div>
+  <div class="lightbox" id="img3">
+    <a href="#"><img src="photos/3.png" alt="价目表3"></a>
+  </div>
+  <div class="lightbox" id="img4">
+    <a href="#"><img src="photos/4.png" alt="价目表4"></a>
   </div>
 
+  <!-- 🔻 Footer -->
+  <footer>
+    <p>© 2025 KOKUSHIN 租车服务 |
+      <a href="qualification.html">公司简介</a> |
+      <a href="https://www.rentacar.or.jp/">全国租车协会会员</a>
+    </p>
+  </footer>
 </body>
 </html>
