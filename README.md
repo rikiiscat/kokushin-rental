@@ -36,6 +36,7 @@ API base is `http://localhost` (port 80). If backend runs on 3001, edit `fronten
 - AIVEN : for database storing
 - CLOUDINARY : storing data
 - UPTIMEROBOT : activate website every 5 min
+- Formspree : allows user to send email through the website
 command(LINUX)
     1. path at kokushin-rental
     2. git add .
