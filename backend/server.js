@@ -264,6 +264,11 @@ app.delete("/api/cars/:id", requireLogin, (req, res) => {
 app.use(express.static(path.join(__dirname, "../frontend")));
 app.use("/photos", express.static(path.join(__dirname, "../frontend/photos")));
 
+// sitemap
+app.get("/sitemap.xml", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/sitemap.xml"));
+});
+
 // 兜底返回首页
 app.get("*", (req, res) => {
   if (!req.path.startsWith("/api")) {
